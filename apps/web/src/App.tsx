@@ -157,6 +157,7 @@ export default function App() {
     <main className="app">
       <header className="app-header">
         <span className="app-header__code">{room.code}</span>
+        <span className="app-header__player">Jogando como {me.name}</span>
         <button type="button" className="link-btn" onClick={handleLeave}>
           Sair
         </button>

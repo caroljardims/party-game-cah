@@ -54,6 +54,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   padding-bottom: 12px;
   margin-bottom: 16px;
   border-bottom: 1px solid var(--border);
@@ -63,6 +65,12 @@ a {
   font-weight: 800;
   letter-spacing: 0.15em;
   font-variant-numeric: tabular-nums;
+}
+
+.app-header__player {
+  color: var(--muted);
+  font-size: 0.85rem;
+  flex: 1;
 }
 
 .link-btn {
