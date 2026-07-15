@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    // Todos os writes passam por Cloud Functions (Admin SDK, ignora estas regras).
+    // O cliente é somente-leitura. Qualquer usuário autenticado (inclusive anônimo)
+    // pode ler uma sala se souber o código — códigos são curtos e efêmeros.
+    match /rooms/{roomCode} {
+      allow read: if isAuthed();
+      allow write: if false;
+
+      match /players/{playerId} {
+        allow read: if isAuthed();
+        allow write: if false;
+      }
+
+      // Mão de cartas — privada, só o próprio jogador lê.
+      match /hands/{playerId} {
+        allow read: if isAuthed() && request.auth.uid == resource.data.uid;
+        allow write: if false;
+      }
+
+      // Submissões brutas nunca são lidas pelo cliente — preserva o anonimato
+      // das respostas. O reveal anonimizado (sem playerId) vive no doc da sala
+      // (`judgingSlots`), só escrito pelas Cloud Functions.
+      match /submissions/{playerId} {
+        allow read: if false;
+        allow write: if false;
+      }
+    }
+  }
+}
