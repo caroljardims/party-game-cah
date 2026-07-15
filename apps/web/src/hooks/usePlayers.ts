@@ -1,20 +1,27 @@
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, type FirestoreError } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../firebase.js";
 import type { PlayerDoc } from "../types.js";
 
-export function usePlayers(roomCode: string | null): PlayerDoc[] {
-  const [players, setPlayers] = useState<PlayerDoc[]>([]);
+interface PlayersState {
+  players: PlayerDoc[];
+  error: FirestoreError | null;
+}
+
+export function usePlayers(roomCode: string | null): PlayersState {
+  const [state, setState] = useState<PlayersState>({ players: [], error: null });
 
   useEffect(() => {
     if (!roomCode) {
-      setPlayers([]);
+      setState({ players: [], error: null });
       return;
     }
-    return onSnapshot(collection(db, "rooms", roomCode, "players"), (snap) => {
-      setPlayers(snap.docs.map((d) => d.data() as PlayerDoc));
-    });
+    return onSnapshot(
+      collection(db, "rooms", roomCode, "players"),
+      (snap) => setState({ players: snap.docs.map((d) => d.data() as PlayerDoc), error: null }),
+      (error) => setState({ players: [], error }),
+    );
   }, [roomCode]);
 
-  return players;
+  return state;
 }

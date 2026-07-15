@@ -13,7 +13,7 @@ import { usePlayers } from "./hooks/usePlayers.js";
 import { useRoomDoc } from "./hooks/useRoomDoc.js";
 import * as actions from "./lib/actions.js";
 import { clearSession, loadSession, saveSession } from "./lib/session.js";
-import type { Session } from "./types.js";
+import type { PlayerDoc, RoomDoc, Session } from "./types.js";
 
 export default function App() {
   const { user, error: authError } = useAuthUser();
@@ -22,22 +22,39 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [revealDismissedRound, setRevealDismissedRound] = useState(0);
 
-  const room = useRoomDoc(session?.roomCode ?? null);
-  const players = usePlayers(session?.roomCode ?? null);
-  const hand = useMyHand(session?.roomCode ?? null, session?.playerId ?? null);
+  // Só assina o Firestore depois que a auth anônima resolveu — um listener que
+  // recebe permission-denied (por tentar ler antes do login completar) não se
+  // recupera sozinho quando o auth fica pronto, ele fica morto pra sempre.
+  const roomCode = user && session ? session.roomCode : null;
+  const playerId = user && session ? session.playerId : null;
+
+  const { room, error: roomError } = useRoomDoc(roomCode);
+  const { players, error: playersError } = usePlayers(roomCode);
+  const { hand, error: handError } = useMyHand(roomCode, playerId);
 
   const me = useMemo(() => players.find((p) => p.id === session?.playerId), [players, session]);
 
   // Sala não existe mais (ex: reiniciada em outro dispositivo) — volta pro início.
   useEffect(() => {
-    if (session && room === null && players.length === 0) {
+    if (session && room === null && players.length === 0 && !roomError && !playersError) {
       const t = setTimeout(() => {
         clearSession();
         setSession(null);
       }, 1500);
       return () => clearTimeout(t);
     }
-  }, [session, room, players.length]);
+  }, [session, room, players.length, roomError, playersError]);
+
+  // Sessão local aponta pra um jogador que a sala não reconhece mais (uid não bate
+  // com o dono da mão salva no Firestore) — provável perda de sessão anônima após
+  // reload. Não dá pra recuperar sozinho: volta pro início pra entrar de novo.
+  useEffect(() => {
+    if (handError?.code === "permission-denied") {
+      clearSession();
+      setSession(null);
+      setError("Sua sessão nesta sala expirou. Entre na sala de novo.");
+    }
+  }, [handError]);
 
   async function run(fn: () => Promise<void>) {
     setBusy(true);
@@ -103,6 +120,21 @@ export default function App() {
     );
   }
 
+  if (roomError || playersError) {
+    return (
+      <main className="app">
+        <div className="screen screen--center">
+          <p className="banner banner--error">
+            Não foi possível carregar a sala: {(roomError ?? playersError)?.message}
+          </p>
+          <button type="button" className="link-btn" onClick={handleLeave}>
+            Voltar ao início
+          </button>
+        </div>
+      </main>
+    );
+  }
+
   if (!room || !me) {
     return (
       <main className="app">
@@ -152,8 +184,8 @@ export default function App() {
 }
 
 function Screen(props: {
-  room: NonNullable<ReturnType<typeof useRoomDoc>>;
-  players: ReturnType<typeof usePlayers>;
+  room: RoomDoc;
+  players: PlayerDoc[];
   hand: number[];
   isHost: boolean;
   isCzar: boolean;
