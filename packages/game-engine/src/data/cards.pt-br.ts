@@ -332,7 +332,7 @@ export const WHITE_CARDS: readonly string[] = [
   "Comida de cavalo.",
   "Um chapeu realmente maneiro.",
   "Kim Jong-il.",
-  "Um pentenho rebelde.",
+  "Um pentelho rebelde.",
   "Fraternidades judias.",
   "Uma minoria minúscula.",
   "Meter na bunda.",

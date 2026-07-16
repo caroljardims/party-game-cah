@@ -1,24 +1,35 @@
 import { whiteCardText } from "cah-game-engine";
-import { fillBlackCard } from "../../lib/cardText.js";
+import { fillBlackCardSegments } from "../../lib/cardText.js";
 import type { JudgingSlot } from "../../types.js";
-import { Card } from "../Card.js";
+import { FilledBlackCard } from "../FilledBlackCard.js";
 
 interface JudgeScreenProps {
   blackText: string;
-  pick: 1 | 2;
   slots: JudgingSlot[];
   busy: boolean;
-  onPick: (slotId: string) => void;
+  isCzar: boolean;
+  onPick?: (slotId: string) => void;
 }
 
-export function JudgeScreen({ blackText, pick, slots, busy, onPick }: JudgeScreenProps) {
+export function JudgeScreen({ blackText, slots, busy, isCzar, onPick }: JudgeScreenProps) {
   return (
     <div className="screen">
-      <Card kind="black" text={blackText} pick={pick} />
-      <p className="muted">Você é o Card Czar. Leia cada combinação em voz alta e escolha a mais engraçada.</p>
+      <p className="muted">
+        {isCzar
+          ? "Você é o Card Czar. Leia cada combinação em voz alta e escolha a mais engraçada."
+          : "O Card Czar está escolhendo a resposta mais engraçada…"}
+      </p>
       <div className="slot-list">
         {slots.map((slot) => {
           const answers = slot.cardIds.map(whiteCardText);
+          const card = <FilledBlackCard segments={fillBlackCardSegments(blackText, answers)} />;
+          if (!isCzar || !onPick) {
+            return (
+              <div key={slot.slotId} className="slot slot--readonly">
+                {card}
+              </div>
+            );
+          }
           return (
             <div
               key={slot.slotId}
@@ -31,12 +42,7 @@ export function JudgeScreen({ blackText, pick, slots, busy, onPick }: JudgeScree
                 if (!busy && (e.key === "Enter" || e.key === " ")) onPick(slot.slotId);
               }}
             >
-              <p className="slot__preview">{fillBlackCard(blackText, answers)}</p>
-              <div className="slot__cards">
-                {answers.map((text, i) => (
-                  <Card key={i} kind="white" text={text} />
-                ))}
-              </div>
+              {card}
             </div>
           );
         })}

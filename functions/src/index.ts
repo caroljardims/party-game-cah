@@ -4,4 +4,4 @@ import "./lib/db.js";
 setGlobalOptions({ region: "us-central1", maxInstances: 10, invoker: "public" });
 
 export { createRoom, joinRoom } from "./handlers/room.js";
-export { startGame, submitCards, czarPick, restartGame } from "./handlers/game.js";
+export { startGame, submitCards, sintoniaSubmitPicks, czarPick, continueRound, restartGame } from "./handlers/game.js";

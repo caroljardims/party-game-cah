@@ -1,6 +1,6 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { HttpsError, onCall } from "firebase-functions/v2/https";
-import { randomCode, randomId } from "cah-game-engine";
+import { normalizeMarker, randomCode, randomId } from "cah-game-engine";
 import { db } from "../lib/db.js";
 import { loadPlayers, requireAuth } from "./shared.js";
 
@@ -9,6 +9,7 @@ const MAX_PLAYERS = 20;
 export const createRoom = onCall(async (req) => {
   const uid = requireAuth(req);
   const name = String(req.data?.name ?? "Anfitrião").trim().slice(0, 40) || "Anfitrião";
+  const marker = normalizeMarker(req.data?.marker);
 
   let code = randomCode();
   for (let i = 0; i < 10; i++) {
@@ -20,9 +21,11 @@ export const createRoom = onCall(async (req) => {
       batch.set(ref, {
         code,
         status: "lobby",
+        mode: null,
         hostUid: uid,
         round: 0,
         targetScore: 7,
+        sharedScore: 0,
         czarPlayerId: null,
         playerOrder: [],
         blackCardId: null,
@@ -30,9 +33,11 @@ export const createRoom = onCall(async (req) => {
         blackDeckRemaining: [],
         whiteDeckRemaining: [],
         whiteDiscard: [],
+        tableCardIds: [],
         submittedPlayerIds: [],
         judgingSlots: null,
         lastWinner: null,
+        sintoniaReveal: null,
         winnerPlayerId: null,
         createdAt: FieldValue.serverTimestamp(),
       });
@@ -42,6 +47,7 @@ export const createRoom = onCall(async (req) => {
         name,
         score: 0,
         isHost: true,
+        marker,
       });
       await batch.commit();
       return { roomCode: code, playerId };
@@ -55,6 +61,7 @@ export const joinRoom = onCall(async (req) => {
   const uid = requireAuth(req);
   const code = String(req.data?.roomCode ?? "").toUpperCase().trim();
   const name = String(req.data?.name ?? "Jogador").trim().slice(0, 40) || "Jogador";
+  const marker = normalizeMarker(req.data?.marker);
   if (!code) throw new HttpsError("invalid-argument", "Código inválido.");
 
   const roomRef = db.collection("rooms").doc(code);
@@ -67,6 +74,9 @@ export const joinRoom = onCall(async (req) => {
 
   const players = await loadPlayers(code);
   if (players.length >= MAX_PLAYERS) throw new HttpsError("failed-precondition", "Sala cheia.");
+  if (players.some((p) => p.marker === marker)) {
+    throw new HttpsError("already-exists", "Esse emoji já foi escolhido. Escolha outro.");
+  }
 
   const playerId = randomId();
   await roomRef.collection("players").doc(playerId).set({
@@ -75,6 +85,7 @@ export const joinRoom = onCall(async (req) => {
     name,
     score: 0,
     isHost: false,
+    marker,
   });
   return { roomCode: code, playerId };
 });

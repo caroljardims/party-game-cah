@@ -13,6 +13,7 @@ export interface PlayerDoc {
   name: string;
   score: number;
   isHost: boolean;
+  marker?: string;
 }
 
 export async function loadPlayers(roomCode: string): Promise<PlayerDoc[]> {

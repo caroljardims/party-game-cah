@@ -73,6 +73,52 @@ a {
   flex: 1;
 }
 
+.scoreboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.scoreboard__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.scoreboard__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.scoreboard__item--czar {
+  border-color: var(--accent);
+}
+
+.scoreboard__name {
+  font-weight: 600;
+}
+
+.scoreboard__score {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  min-width: 1ch;
+}
+
+.scoreboard__meta {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
 .link-btn {
   background: none;
   border: none;
@@ -198,6 +244,184 @@ a {
   background: var(--surface);
 }
 
+.player-list__marker {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.marker-picker {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.marker-picker legend {
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+.name-with-marker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.name-with-marker__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.name-with-marker__row input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 1rem;
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.name-with-marker__preview {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.marker-picker__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.marker-picker__btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.marker-picker__btn--active {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+}
+
+.marker-picker__reshuffle {
+  align-self: flex-start;
+}
+
+.marker-picker__hint {
+  margin: 0;
+}
+
+.sintonia-prompt {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.sintonia-picks-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.sintonia-pairs {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.sintonia-pair__title {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sintonia-pair__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.sintonia-pair__row .card {
+  min-height: 160px;
+  gap: 10px;
+}
+
+.card__text--with-verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.card__sentence {
+  flex: 1;
+  min-width: 0;
+}
+
+.card__verdict {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.sintonia-card-marks {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 2px;
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+.sintonia-end-players {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.sintonia-reveal-picks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  width: 100%;
+}
+
+.scoreboard__shared {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scoreboard__shared-score {
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
 .tag {
   font-size: 0.7rem;
   color: var(--accent);
@@ -267,6 +491,10 @@ a {
   margin-top: 8px;
 }
 
+.card__answer {
+  color: #f5c518;
+}
+
 .hand-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -301,34 +529,20 @@ a {
 }
 
 .slot {
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  padding: 14px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 3px;
   cursor: pointer;
-  background: var(--surface);
 }
 
-.slot:hover,
-.slot:focus-visible {
+.slot--readonly {
+  cursor: default;
+}
+
+.slot:not(.slot--readonly):hover,
+.slot:not(.slot--readonly):focus-visible {
   border-color: var(--accent);
   outline: none;
-}
-
-.slot__preview {
-  font-weight: 600;
-  margin: 0 0 10px;
-}
-
-.slot__cards {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.slot__cards .card {
-  min-height: 100px;
-  flex: 1;
-  min-width: 120px;
 }
 
 .reveal__title {
