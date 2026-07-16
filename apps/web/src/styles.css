@@ -613,14 +613,34 @@ a {
   }
 }
 
-.footer {
-  margin-top: auto;
-  padding-top: 24px;
+.site-footer {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
   text-align: center;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.site-footer a {
+  color: var(--accent);
+}
+
+.site-footer a:hover {
+  color: var(--fg);
+}
+
+.site-footer__legal {
+  margin: 0.85rem 0 0;
   font-size: 0.75rem;
   color: var(--muted);
 }
 
-.footer a {
+.site-footer__legal a {
   color: var(--muted);
+  text-decoration: underline;
+}
+
+.site-footer__legal a:hover {
+  color: var(--fg);
 }

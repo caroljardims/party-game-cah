@@ -340,8 +340,16 @@ function Screen(props: {
 
 function Footer() {
   return (
-    <footer className="footer">
-      <p>
+    <footer className="site-footer">
+      Gostou?{" "}
+      <a href="https://caroljardims.com.br/pix/">Me pague um café via Pix</a>
+      {" "}
+      ou{" "}
+      <a href="https://buymeacoffee.com/caroljardims" target="_blank" rel="noopener noreferrer">
+        Buy Me a Coffee
+      </a>{" "}
+      ☕
+      <p className="site-footer__legal">
         Baseado em <em>Cards Against Humanity</em>, disponibilizado sob{" "}
         <a href="https://creativecommons.org/licenses/by-nc-sa/2.0/" target="_blank" rel="noreferrer">
           CC BY-NC-SA 2.0
